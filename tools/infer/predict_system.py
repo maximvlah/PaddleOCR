@@ -13,6 +13,7 @@
 # limitations under the License.
 import os
 import sys
+import json
 import subprocess
 from pathlib import Path
 
@@ -197,7 +198,10 @@ def main(args):
                 "points": np.array(dt_boxes[i]).astype(np.int32).tolist(),
             } for i in range(len(dt_boxes))]
 
-            with open(os.path.join(draw_img_save_dir,f"{Path(image_file).stem}.txt"),"w") as f:
+            with open(image_file.replace(".jpg",".json"),"r") as f:
+                metadata = json.load(f)
+
+            with open(os.path.join(draw_img_save_dir,f"{metadata['reviewID']}.txt"),"w") as f:
                 json.dump(res,f)
 
             if is_visualize:
