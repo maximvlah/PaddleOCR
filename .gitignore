@@ -9,6 +9,8 @@ __pycache__/
 
 inference/
 inference_results/
+ppocr_weights/
+extract_text.py
 output/
 train_data/
 log/

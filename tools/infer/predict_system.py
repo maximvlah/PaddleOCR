@@ -14,6 +14,7 @@
 import os
 import sys
 import subprocess
+from pathlib import Path
 
 __dir__ = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(__dir__)
@@ -138,7 +139,7 @@ def main(args):
     image_file_list = get_image_file_list(args.image_dir)
     image_file_list = image_file_list[args.process_id::args.total_process_num]
     text_sys = TextSystem(args)
-    is_visualize = True
+    is_visualize = False
     font_path = args.vis_font_path
     drop_score = args.drop_score
     draw_img_save_dir = args.draw_img_save_dir
@@ -195,14 +196,9 @@ def main(args):
                 "transcription": rec_res[i][0],
                 "points": np.array(dt_boxes[i]).astype(np.int32).tolist(),
             } for i in range(len(dt_boxes))]
-            if len(imgs) > 1:
-                save_pred = os.path.basename(image_file) + '_' + str(
-                    index) + "\t" + json.dumps(
-                        res, ensure_ascii=False) + "\n"
-            else:
-                save_pred = os.path.basename(image_file) + "\t" + json.dumps(
-                    res, ensure_ascii=False) + "\n"
-            save_results.append(save_pred)
+
+            with open(os.path.join(draw_img_save_dir,f"{Path(image_file).stem}.txt"),"w") as f:
+                json.dump(res,f)
 
             if is_visualize:
                 image = Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
@@ -236,12 +232,6 @@ def main(args):
     if args.benchmark:
         text_sys.text_detector.autolog.report()
         text_sys.text_recognizer.autolog.report()
-
-    with open(
-            os.path.join(draw_img_save_dir, "system_results.txt"),
-            'w',
-            encoding='utf-8') as f:
-        f.writelines(save_results)
 
 
 if __name__ == "__main__":
